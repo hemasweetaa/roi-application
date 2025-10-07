@@ -11,7 +11,7 @@ app = Flask(__name__)
 # --- DATABASE CONFIGURATION FOR MYSQL ---
 # IMPORTANT: Make sure these values match your MySQL credentials.
 DB_USER = "roi_user"
-DB_PASS = "your_strong_password"  # The password you set
+DB_PASS = "swee090104"  # The password you set
 DB_HOST = "localhost"
 DB_NAME = "roi_simulator"
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
