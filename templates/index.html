@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoicing ROI Simulator</title>
+    <!-- Using Pico.css for a clean, modern look -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <style>
+        /* Custom styles for better layout and presentation */
+        body {
+            padding: 2rem 1rem;
+        }
+        main.container {
+            max-width: 1200px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .results-card {
+            background-color: var(--card-background-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--card-border-color);
+            text-align: center;
+            position: sticky; /* Makes the card stay in view on scroll */
+            top: 2rem;
+        }
+        .results-card h3 {
+            margin-top: 0;
+        }
+        .result-item {
+            margin-bottom: 2rem;
+        }
+        .result-item h4 {
+            margin-bottom: 0.5rem;
+            color: var(--muted-color);
+            font-weight: normal;
+        }
+        .result-item p {
+            font-size: 2.25rem;
+            font-weight: bold;
+            margin: 0;
+            color: var(--primary);
+            line-height: 1;
+        }
+        /* Ensure the modal is styled correctly */
+        dialog article {
+            min-width: 400px;
+        }
+        /* Grid for saved scenarios section */
+        #scenario-management-grid {
+            grid-template-columns: 2fr 1fr;
+            align-items: end;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header>
+            <h1>Invoicing ROI Simulator</h1>
+            <p>Visualize cost savings when switching from manual to automated invoicing.</p>
+        </header>
+
+        <!-- Main two-column layout -->
+        <div class="grid">
+            
+            <!-- Left Column: Inputs and Scenario Management -->
+            <section>
+                <article>
+                    <h3 style="margin-bottom: 1.5rem;">Your Business Metrics</h3>
+                    <form id="roi-form">
+                        <!-- Grid for the input form fields -->
+                        <div class="grid">
+                            <label for="monthly_invoice_volume">
+                                Invoices / Month
+                                <input type="number" id="monthly_invoice_volume" name="monthly_invoice_volume" value="2000" required>
+                            </label>
+                            <label for="num_ap_staff">
+                                AP Staff
+                                <input type="number" id="num_ap_staff" name="num_ap_staff" value="3" required>
+                            </label>
+                        </div>
+                        <div class="grid">
+                            <label for="avg_hours_per_invoice">
+                                Manual Hours / Invoice
+                                <input type="number" step="0.01" id="avg_hours_per_invoice" name="avg_hours_per_invoice" placeholder="e.g., 10 mins = 0.17" value="0.17" required>
+                            </label>
+                            <label for="hourly_wage">
+                                Avg Hourly Wage ($)
+                                <input type="number" id="hourly_wage" name="hourly_wage" value="30" required>
+                            </label>
+                        </div>
+                         <div class="grid">
+                             <label for="error_rate_manual">
+                                Manual Error Rate (%)
+                                <input type="number" step="0.1" id="error_rate_manual" name="error_rate_manual" value="0.5" required>
+                            </label>
+                            <label for="error_cost">
+                                Cost to Fix Error ($)
+                                <input type="number" id="error_cost" name="error_cost" value="100" required>
+                            </label>
+                         </div>
+                        <div class="grid">
+                           <label for="time_horizon_months">
+                                Projection Period (Months)
+                                <input type="number" id="time_horizon_months" name="time_horizon_months" value="36" required>
+                            </label>
+                            <label for="one_time_implementation_cost">
+                                Implementation Cost ($)
+                                <input type="number" id="one_time_implementation_cost" name="one_time_implementation_cost" value="50000">
+                            </label>
+                        </div>
+                    </form>
+                </article>
+
+                <article>
+                    <h3>Scenario Management</h3>
+                    <div class="grid" id="scenario-management-grid">
+                        <div>
+                            <label for="scenario_name">Scenario Name</label>
+                            <input type="text" id="scenario_name" name="scenario_name" placeholder="e.g., Q4 Pilot Projection">
+                        </div>
+                        <button id="save-scenario-btn">Save Current Scenario</button>
+                    </div>
+                    <label for="saved-scenarios-list">Saved Scenarios</label>
+                    <div class="grid">
+                        <select id="saved-scenarios-list">
+                            <option>Loading...</option>
+                        </select>
+                         <button id="load-scenario-btn">Load Selected</button>
+                    </div>
+                </article>
+            </section>
+
+            <!-- Right Column: Results Card -->
+            <aside>
+                 <article id="results-container" class="results-card">
+                    <h3>Your Estimated ROI</h3>
+                    <div class="result-item">
+                        <h4>Monthly Savings</h4>
+                        <p id="monthly-savings">$0</p>
+                    </div>
+                    <div class="result-item">
+                        <h4>Payback Period</h4>
+                        <p id="payback-months">N/A</p>
+                    </div>
+                    <div class="result-item">
+                        <h4 id="roi-label">ROI (3 Years)</h4>
+                        <p id="roi-percentage">0%</p>
+                    </div>
+                    <button id="download-report-btn" class="contrast">Download Full Report</button>
+                </article>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Modal for Email Gating -->
+    <dialog id="email-modal">
+        <article>
+            <header>
+                <a href="#close" aria-label="Close" class="close" data-target="email-modal" onClick="toggleModal(event)"></a>
+                <h3>Enter Your Email to Download</h3>
+            </header>
+            <p>We'll provide a PDF copy of your ROI report.</p>
+            <form id="email-form">
+                <input type="email" id="user-email" placeholder="name@example.com" required>
+                <button type="submit" class="contrast">Download PDF</button>
+            </form>
+        </article>
+    </dialog>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Simple helper for the modal dialog
+        window.toggleModal = (event) => {
+            event.preventDefault();
+            const modal = document.getElementById('email-modal');
+            if (modal.open) {
+                modal.close();
+            } else {
+                modal.showModal();
+            }
+        };
+        // Attach event listener to the button
+        document.getElementById('download-report-btn').addEventListener('click', toggleModal);
+    </script>
+</body>
+</html>

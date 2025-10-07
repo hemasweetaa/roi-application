@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoicing ROI Report</title>
+    <style>
+        body { font-family: sans-serif; color: #333; }
+        .container { width: 80%; margin: auto; }
+        h1 { color: #007bff; }
+        .section { margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 5px;}
+        .section h2 { margin-top: 0; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Invoicing ROI Simulation Report</h1>
+        
+        <div class="section">
+            <h2>Summary of Results</h2>
+            <table>
+                <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>Estimated Monthly Savings</td>
+                    <td>${{ data.results.monthly_savings|round(2) }}</td>
+                </tr>
+                <tr>
+                    <td>Payback Period</td>
+                    <td>{{ data.results.payback_months|round(1) }} months</td>
+                </tr>
+                <tr>
+                    <td>ROI ({{ data.inputs.time_horizon_months }} months)</td>
+                    <td>{{ data.results.roi_percentage|round(2) }}%</td>
+                </tr>
+                 <tr>
+                    <td>Total Cumulative Savings</td>
+                    <td>${{ data.results.cumulative_savings|round(2) }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Inputs Provided</h2>
+            <table>
+                <tr><th>Input Parameter</th><th>Value</th></tr>
+                <tr><td>Monthly Invoice Volume</td><td>{{ data.inputs.monthly_invoice_volume }}</td></tr>
+                <tr><td>AP Staff</td><td>{{ data.inputs.num_ap_staff }}</td></tr>
+                <tr><td>Average Hours per Invoice</td><td>{{ data.inputs.avg_hours_per_invoice }}</td></tr>
+                <tr><td>Hourly Wage</td><td>${{ data.inputs.hourly_wage }}</td></tr>
+                <tr><td>Manual Error Rate</td><td>{{ data.inputs.error_rate_manual }}%</td></tr>
+                <tr><td>Cost per Error</td><td>${{ data.inputs.error_cost }}</td></tr>
+                <tr><td>Implementation Cost</td><td>${{ data.inputs.one_time_implementation_cost }}</td></tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
